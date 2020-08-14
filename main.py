@@ -60,7 +60,6 @@ class App(Cmd):
     prompt = "|>"
     file = None
     created_app = {
-        "name": "",
         "app path": "./code.py",
         "json path": "./config.json",
         "intro": "",
@@ -83,13 +82,6 @@ class App(Cmd):
         Argument: any string
         """
         self.created_app["prompt"] = arg.args
-
-    def do_name(self, arg):
-        """
-        Specify the name of your application.
-        Argument: any string
-        """
-        self.created_app["name"] = arg.args
 
     def do_path(self, arg):
         """
