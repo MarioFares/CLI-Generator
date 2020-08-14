@@ -40,6 +40,12 @@ import_argparser.add_argument('-ap', '--addpackage', action='store_true',
 import_argparser.add_argument('-am', '--addmodule', action='store_true',
                               help='Add import statement with entire module.')
 
+open_argparser = argparse.ArgumentParser()
+open_argparser.add_argument('-file', '--file', action='store_true',
+                            help='Open the .py file where your code is.')
+open_argparser.add_argument('-json', '--json', action='store_true',
+                            help='Open the .json file where your config is.')
+
 
 # noinspection PyUnusedLocal
 class App(Cmd):
@@ -55,8 +61,8 @@ class App(Cmd):
     file = None
     created_app = {
         "name": "",
-        "app path": "code.py",
-        "json path": "config.json",
+        "app path": "./code.py",
+        "json path": "./config.json",
         "intro": "",
         "prompt": "",
         "file": "None",
@@ -153,22 +159,27 @@ class App(Cmd):
         Argument: no argument
         """
         self.created_app = self.created_app.fromkeys(self.created_app, "")
-        self.created_app['app path'] = 'code.py'
-        self.created_app['json path'] = 'config.json'
+        self.created_app['app path'] = './code.py'
+        self.created_app['json path'] = './config.json'
         self.created_app['file'] = 'None'
         self.do_clear(self)
 
-    @staticmethod
-    def do_open(arg):
+    @with_argparser_and_unknown_args(open_argparser)
+    def do_open(self, opts, arg):
         """
         Open files and folders.
 
         Argument: absolute path to file/folder
         """
         try:
-            os.startfile(arg)
-        except Exception as e:
-            print(e)
+            if opts.file:
+                os.startfile(self.created_app['app path'])
+            elif opts.json:
+                os.startfile(self.created_app['json path'])
+            else:
+                os.startfile(arg[0])
+        except WindowsError:
+            print("The file does not exist. Check path to file or create the file.")
 
     @staticmethod
     def do_clear(arg):
