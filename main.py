@@ -170,6 +170,10 @@ class App(Cmd):
         Open files and folders.
 
         Argument: absolute path to file/folder
+
+        Optional:
+        Argument 1: -file, --file   Open the .py file where code will be generated
+        Argument 2: -json, --json   Open the .json file where settings will be saved
         """
         try:
             if opts.file:
