@@ -269,10 +269,10 @@ class App(Cmd):
                     file.write(f"\nfrom {i[1]} import {i[2]}")
                 else:
                     continue 
-            file.write("\n\n\n\n\n")
+            file.write("\n\n")
             file.write(f"\nclass App(Cmd):") 
-            file.write(f"\n    intro = {self.created_app['intro']}")             
-            file.write(f"\n    prompt = {self.created_app['prompt']}")
+            file.write(f"\n    intro = \"{self.created_app['intro']}\"")
+            file.write(f"\n    prompt = \"{self.created_app['prompt']}\"")
             file.write(f"\n    file = {self.created_app['file']}")
             for c in self.created_app["commands"]:
                 file.write(f"\n\n    def do_{c[0]}(self, {c[2]}):")
