@@ -27,12 +27,14 @@ available to you inside this application.
 
 
 from cmd2 import with_argparser_and_unknown_args
+from colorama import init, Fore, Style
 from cmd2 import Cmd
 import argparse
 import pprint
 import json
 import os
 
+init(autoreset=False)
 
 import_argparser = argparse.ArgumentParser()
 import_argparser.add_argument('-ap', '--addpackage', action='store_true',
@@ -110,9 +112,13 @@ class App(Cmd):
 
         Argument: no argument
         """
-        with open(self.created_app['json path'], 'w+') as file:
-            json.dump(self.created_app, file, sort_keys=True, indent=4)
-    
+        try:
+            with open(self.created_app['json path'], 'w+') as file:
+                json.dump(self.created_app, file, sort_keys=True, indent=4)
+            print(f"{Fore.GREEN}Saved Successfully.{Style.RESET_ALL}")
+        except Exception as e:
+            print(f"{Fore.RED}{e}{Style.RESET_ALL}")
+
     def do_info(self, arg):
         """
         Show the information that has been inputted for the app.
@@ -127,8 +133,10 @@ class App(Cmd):
 
         Argument: no argument
         """
+        print(Fore.RED)
         pprint.pprint(self.created_app)
-        
+        print(Style.RESET_ALL)
+
     def do_load(self, arg):
         """
         Load application information from JSON file, with the absolute path to that file to be specified.
@@ -139,8 +147,9 @@ class App(Cmd):
             file = input("Path: ")
             with open(file, 'r+') as json_file:
                 self.created_app = json.load(json_file)
+            print(f"{Fore.GREEN}Loaded Successfully{Style.RESET_ALL}")
         except Exception as e:
-            print(e)
+            print(f"{Fore.RED}{e}{Style.RESET_ALL}")
                 
     def do_reset(self, arg):
         # quit and open again the app
@@ -175,7 +184,7 @@ class App(Cmd):
             else:
                 os.startfile(arg[0])
         except WindowsError:
-            print("The file does not exist. Check path to file or create the file.")
+            print(f"{Fore.RED}The file does not exist. Check path to file or create the file.{Style.RESET_ALL}")
 
     @staticmethod
     def do_clear(arg):
@@ -226,19 +235,22 @@ class App(Cmd):
         This will add the modules you want to import to the script.
         """
         if opts.addmodule:
-            namespace = input("Would you like to add a namespace?(y/n)")
+            namespace = input(f"{Fore.BLUE}Would you like to add a namespace?(y/n){Fore.GREEN}")
+            print(Style.RESET_ALL)
             if namespace == "y":
-                name = input("Namespace: ")
+                name = input(f"{Fore.BLUE}Namespace: {Fore.GREEN}")
                 self.created_app["imports"].append(["namespace", arg[0], name])
+                print(Style.RESET_ALL)
             elif namespace == "n":
                 self.created_app["imports"].append(arg)
             else:
                 self.created_app["imports"].append(arg)
         elif opts.addpackage:
-            module = input("What module is this package located in?")
+            module = input(f"{Fore.BLUE}What module is this package located in? {Fore.GREEN}")
             self.created_app["imports"].append(["package", module, arg[0]])
+            print(Style.RESET_ALL)
         else:
-            print("You must add a valid argument for the command.")
+            print(f"{Fore.RED}You must add a valid argument for the command.{Style.RESET_ALL}")
 
     def do_add(self, arg):
         """
@@ -246,10 +258,10 @@ class App(Cmd):
 
         Argument: name of the command
         """
-        doc = input("Documentation: ")
-        args = input("Arguments(csv): ")
+        doc = input(f"{Fore.BLUE}Documentation: {Fore.GREEN}")
+        args = input(f"{Fore.BLUE}Arguments(csv): {Fore.GREEN}")
+        print(Style.RESET_ALL)
         self.created_app["commands"].append([str(arg), doc, args])
-        print(arg)
 
     def do_gen(self, opts):
         """
@@ -257,8 +269,8 @@ class App(Cmd):
 
         Argument: no argument
         """
-        exception = input("Do you want to feature exception handling in all your functions?(y/n)")
-        print("Text Document is being generated.")
+        exception = input(f"{Fore.BLUE}Do you want exception handling in all your functions?(y/n){Fore.GREEN}")
+        print(f"Text Document is being generated.{Style.RESET_ALL}")
         with open(self.created_app["app path"], "a+") as file:
             for i in self.created_app["imports"]:
                 if len(i) == 1:
@@ -286,9 +298,9 @@ class App(Cmd):
                     file.write("\n    pass")
             file.write("\n\n\napp = App()")
             file.write("\napp.cmdloop()")
-            print(self.created_app)
             file.close()
  
 
-app = App()
-app.cmdloop()
+if __name__ == "__main__":
+    app = App()
+    app.cmdloop()
