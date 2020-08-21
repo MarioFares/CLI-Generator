@@ -25,10 +25,16 @@ and what it does. You may also use that symbol in the beginning to see the list 
 available to you inside this application.
 """
 
-
-from cmd2 import with_argparser_and_unknown_args
-from colorama import init, Fore, Style
-from cmd2 import Cmd
+try:
+    from cmd2 import with_argparser_and_unknown_args, Cmd
+    from colorama import init, Fore, Style
+except ModuleNotFoundError as error:
+    print(f"{error}")
+    print("You are unable to run this script without this module.")
+    print("Install them using pip...")
+    input()
+finally:
+    exit(1)
 import argparse
 import pprint
 import json
