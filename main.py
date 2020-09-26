@@ -164,6 +164,8 @@ class App(Cmd):
         Argument: no argument
         """
         self.created_app = self.created_app.fromkeys(self.created_app, "")
+        self.created_app['imports'] = []
+        self.created_app['commands'] = []
         self.created_app['app path'] = './code.py'
         self.created_app['json path'] = './config.json'
         self.created_app['file'] = 'None'
