@@ -302,8 +302,9 @@ class App(Cmd):
                     file.write("\n            print(e)")
                 else:
                     file.write("\n    pass")
-            file.write("\n\n\napp = App()")
-            file.write("\napp.cmdloop()")
+            file.write("\n\n\nif __name__ == \"__main__\":")
+            file.write("\n    app = App()")
+            file.write("\n    app.cmdloop()")
             file.close()
  
 
