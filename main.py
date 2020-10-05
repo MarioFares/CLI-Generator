@@ -23,10 +23,15 @@ file later on if you need it.
 You are able to use ? symbol before any command to learn more about that command, its arguments,
 and what it does. You may also use that symbol in the beginning to see the list of commands
 available to you inside this application.
+
+Command completion is also a feature made possible by the cmd2 module along with many other features
+such as use of aliases and abilities to run scripts with the commands of this CLI. It is worth noting
+that using cmd2 also makes the application stable for any explicitly uncaught errors are caught by the
+module itself.
 """
 
 try:
-    from cmd2 import with_argparser_and_unknown_args, Cmd
+    from cmd2 import with_argparser_and_unknown_args, Cmd, with_category
     from colorama import init, Fore, Style
 except ModuleNotFoundError as error:
     print(f"{error}")
@@ -75,6 +80,7 @@ class App(Cmd):
         "commands": [],
     }
 
+    @with_category("App Settings")
     def do_intro(self, arg):
         """
         Specify CLI introduction -> The first string that will appear when the application is run.
@@ -82,6 +88,7 @@ class App(Cmd):
         """
         self.created_app["intro"] = arg.args
 
+    @with_category("App Settings")
     def do_prompt(self, arg):
         """
         Specify CLI prompt -> The prompt is a string repeatedly shown which awaits input.
@@ -89,6 +96,7 @@ class App(Cmd):
         """
         self.created_app["prompt"] = arg.args
 
+    @with_category("App Settings")
     def do_path(self, arg):
         """
         Specify the absolute path to the script you want to create.
@@ -99,6 +107,7 @@ class App(Cmd):
         """
         self.created_app["app path"] = arg.args
 
+    @with_category("JSON")
     def do_jsonpath(self, arg):
         """
         Specify path to the JSON path where you want to save application.
@@ -109,6 +118,7 @@ class App(Cmd):
         """
         self.created_app["json path"] = arg.args
 
+    @with_category("JSON")
     def do_save(self, arg):
         """
         Save the application settings to a JSON file.
@@ -123,6 +133,7 @@ class App(Cmd):
         except Exception as e:
             print(f"{Fore.RED}{e}{Style.RESET_ALL}")
 
+    @with_category("App Settings")
     def do_info(self, arg):
         """
         Show the information that has been inputted for the app.
@@ -141,6 +152,7 @@ class App(Cmd):
         pprint.pprint(self.created_app)
         print(Style.RESET_ALL)
 
+    @with_category("JSON")
     def do_load(self, arg):
         """
         Load application information from JSON file, with the absolute path to that file to be specified.
@@ -155,6 +167,7 @@ class App(Cmd):
         except Exception as e:
             print(f"{Fore.RED}{e}{Style.RESET_ALL}")
 
+    @with_category("App Settings")
     def do_reset(self, arg):
         # quit and open again the app
         """
@@ -236,6 +249,7 @@ class App(Cmd):
               available to you inside this application.
               """)
 
+    @with_category("App Settings")
     @with_argparser_and_unknown_args(import_argparser)
     def do_import(self, opts, arg):
         # need a way to verify that name specified is in std
@@ -260,6 +274,7 @@ class App(Cmd):
         else:
             print(f"{Fore.RED}You must add a valid argument for the command.{Style.RESET_ALL}")
 
+    @with_category("App Settings")
     def do_add(self, arg):
         """
         Add command to your script.
@@ -271,6 +286,7 @@ class App(Cmd):
         print(Style.RESET_ALL)
         self.created_app["commands"].append([str(arg), doc, args])
 
+    @with_category("App Settings")
     def do_gen(self, opts):
         """
         This command will generate code in the Python file (absolute path specified in info).
