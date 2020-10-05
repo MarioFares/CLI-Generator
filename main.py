@@ -47,9 +47,9 @@ import_argparser.add_argument('-am', '--addmodule', action='store_true',
                               help='Add import statement with entire module.')
 
 open_argparser = argparse.ArgumentParser()
-open_argparser.add_argument('-file', '--file', action='store_true',
+open_argparser.add_argument('-c', '--code', action='store_true',
                             help='Open the .py file where your code is.')
-open_argparser.add_argument('-json', '--json', action='store_true',
+open_argparser.add_argument('-j', '--json', action='store_true',
                             help='Open the .json file where your config is.')
 
 
@@ -108,7 +108,7 @@ class App(Cmd):
         Argument: absolute path to .json file
         """
         self.created_app["json path"] = arg.args
-           
+
     def do_save(self, arg):
         """
         Save the application settings to a JSON file.
@@ -154,7 +154,7 @@ class App(Cmd):
             print(f"{Fore.GREEN}Loaded Successfully{Style.RESET_ALL}")
         except Exception as e:
             print(f"{Fore.RED}{e}{Style.RESET_ALL}")
-                
+
     def do_reset(self, arg):
         # quit and open again the app
         """
@@ -183,14 +183,16 @@ class App(Cmd):
         Argument 2: -json, --json   Open the .json file where settings will be saved
         """
         try:
-            if opts.file:
-                os.startfile(self.created_app['app path'])
+            if opts.code:
+                os.startfile(os.path.abspath(self.created_app['app path']))
             elif opts.json:
-                os.startfile(self.created_app['json path'])
+                os.startfile(os.path.abspath(self.created_app['json path']))
             else:
                 os.startfile(arg[0])
         except WindowsError:
             print(f"{Fore.RED}The file does not exist. Check path to file or create the file.{Style.RESET_ALL}")
+        except IndexError:
+            print(f"{Fore.RED}Command may be incomplete.{Style.RESET_ALL}")
 
     @staticmethod
     def do_clear(arg):
@@ -233,7 +235,7 @@ class App(Cmd):
               and what it does. You may also use that symbol in the beginning to see the list of commands 
               available to you inside this application.
               """)
-    
+
     @with_argparser_and_unknown_args(import_argparser)
     def do_import(self, opts, arg):
         # need a way to verify that name specified is in std
@@ -277,36 +279,64 @@ class App(Cmd):
         """
         exception = input(f"{Fore.BLUE}Do you want exception handling in all your functions?(y/n){Fore.GREEN}")
         print(f"Text Document is being generated.{Style.RESET_ALL}")
-        with open(self.created_app["app path"], "a+") as file:
-            for i in self.created_app["imports"]:
-                if len(i) == 1:
-                    file.write(f"\nimport {i[0]}")
-                elif i[0] == "namespace":
-                    file.write(f"\nimport {i[1]} as {i[2]}")
-                elif i[0] == "package":
-                    file.write(f"\nfrom {i[1]} import {i[2]}")
-                else:
-                    continue 
-            file.write("\n\n")
-            file.write(f"\nclass App(Cmd):") 
-            file.write(f"\n    intro = \"{self.created_app['intro']}\"")
-            file.write(f"\n    prompt = \"{self.created_app['prompt']}\"")
-            file.write(f"\n    file = {self.created_app['file']}")
-            for c in self.created_app["commands"]:
-                file.write(f"\n\n    def do_{c[0]}(self, {c[2]}):")
-                file.write(f"\n        \"\"\"{c[1]}\"\"\"")
-                if exception == 'y':
-                    file.write("\n        try:")
-                    file.write("\n            pass")
-                    file.write("\n        except Exception as e:")
-                    file.write("\n            print(e)")
-                else:
-                    file.write("\n    pass")
-            file.write("\n\n\nif __name__ == \"__main__\":")
-            file.write("\n    app = App()")
-            file.write("\n    app.cmdloop()")
-            file.close()
- 
+        try:
+            with open(self.created_app["app path"], "w+") as file:
+                for i in self.created_app["imports"]:
+                    if "colorama" in i:
+                        colorama = input(f"{Fore.BLUE}Do you want to add init statement?(y/n){Fore.GREEN}")
+                        color = input(
+                            f"{Fore.BLUE}Do you want your exceptions to be printed in red font color?(y/n){Fore.GREEN}")
+                    if len(i) == 1:
+                        file.write(f"\nimport {i[0]}")
+                    elif i[0] == "namespace":
+                        file.write(f"\nimport {i[1]} as {i[2]}")
+                    elif i[0] == "package":
+                        file.write(f"\nfrom {i[1]} import {i[2]}")
+                    else:
+                        continue
+                if colorama == "y":
+                    file.write("\n\ninit(autoreset=True)\n")
+                file.write("\n\n")
+                file.write(f"\nclass App(Cmd):")
+                file.write(f"\n    intro = \"{self.created_app['intro']}\"")
+                file.write(f"\n    prompt = \"{self.created_app['prompt']}\"")
+                file.write(f"\n    file = {self.created_app['file']}")
+                for c in self.created_app["commands"]:
+                    if "quit" in c:
+                        auto_gen = input(f"{Fore.BLUE}Automatically generate quit function?(y/n){Fore.GREEN}")
+                        if auto_gen == "y":
+                            file.write(f"\n\n    def do_quit(self, arg):")
+                            file.write(f"\n        \"\"\"Quit the console.\"\"\"")
+                            file.write(f"\n        quit()")
+                        continue
+                    if "clear" in c:
+                        auto_gen = input(f"{Fore.BLUE}Automatically generate clear function?(y/n){Fore.GREEN}")
+                        if auto_gen == "y":
+                            file.write(f"\n\n    def do_clear(self, arg):")
+                            file.write(f"\n        \"\"\"Clear the console.\"\"\"")
+                            file.write("\n        try:")
+                            file.write("\n            os.system('cls')")
+                            file.write("\n        except OSError:")
+                            file.write("\n            os.system('clear')")
+                        continue
+                    file.write(f"\n\n    def do_{c[0]}(self, {c[2]}):")
+                    file.write(f"\n        \"\"\"{c[1]}\"\"\"")
+                    if exception == 'y':
+                        file.write("\n        try:")
+                        file.write("\n            pass")
+                        file.write("\n        except Exception as e:")
+                        if color == "y":
+                            file.write("\n            print(f\"{Fore.RED}e\")")
+                        else:
+                            file.write("\n            print(e)")
+                    else:
+                        file.write("\n    pass")
+                file.write("\n\n\nif __name__ == \"__main__\":")
+                file.write("\n    app = App()")
+                file.write("\n    app.cmdloop()\n")
+        except FileNotFoundError:
+            print(f"{Fore.RED}File not found.{Style.RESET_ALL}")
+
 
 if __name__ == "__main__":
     app = App()
