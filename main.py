@@ -334,6 +334,7 @@ class App(Cmd):
                 file.write("\n\n\nif __name__ == \"__main__\":")
                 file.write("\n    app = App()")
                 file.write("\n    app.cmdloop()\n")
+                print(f"{Fore.GREEN}Py File Generation Complete.{Style.RESET_ALL}")
         except FileNotFoundError:
             print(f"{Fore.RED}File not found.{Style.RESET_ALL}")
 
